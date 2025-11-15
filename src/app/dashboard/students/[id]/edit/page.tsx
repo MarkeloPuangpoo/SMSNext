@@ -1,0 +1,314 @@
+// src/app/dashboard/students/[id]/edit/page.tsx
+'use client'
+
+import { useRouter, useParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
+
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
+import { Button } from '@/components/ui/button'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import Link from 'next/link'
+
+// Schema สำหรับ Validate
+const studentFormSchema = z.object({
+  first_name: z.string().min(2, {
+    message: 'ชื่อจริงต้องมีอย่างน้อย 2 ตัวอักษร',
+  }),
+  last_name: z.string().min(2, {
+    message: 'นามสกุลต้องมีอย่างน้อย 2 ตัวอักษร',
+  }),
+  national_id: z.string().min(13, {
+    message: 'เลขบัตรประชาชนต้องมี 13 หลัก',
+  }).max(13, {
+    message: 'เลขบัตรประชาชนต้องมี 13 หลัก',
+  }),
+  student_number: z.string().min(1, {
+    message: 'กรุณากรอกเลขนักเรียน',
+  }),
+  address: z.string().min(5, {
+    message: 'กรุณากรอกที่อยู่',
+  }),
+  birth_date: z.string().min(1, {
+    message: 'กรุณาเลือกวันเกิด',
+  }),
+  grade_level: z.string().min(1, {
+    message: 'กรุณากรอกชั้นเรียน (เช่น 1/1, 2/3)',
+  }),
+  behavior_score: z.coerce.number().min(0).max(100).optional(),
+})
+
+// Type สำหรับ Student
+type Student = {
+  first_name: string
+  last_name: string
+  national_id: string
+  student_number: string
+  address: string
+  birth_date: string
+  grade_level: string
+  behavior_score: number | null
+}
+
+export default function EditStudentPage() {
+  const router = useRouter()
+  const params = useParams()
+  const studentId = params.id as string
+
+  const supabase = createSupabaseBrowserClient()
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  const form = useForm<z.infer<typeof studentFormSchema>>({
+    resolver: zodResolver(studentFormSchema),
+    defaultValues: {
+      first_name: '',
+      last_name: '',
+      national_id: '',
+      student_number: '',
+      address: '',
+      birth_date: '',
+      grade_level: '',
+      behavior_score: 100,
+    },
+  })
+
+  // ดึงข้อมูลนักเรียนคนนี้มาแสดง
+  useEffect(() => {
+    async function getStudentData() {
+      setIsLoading(true)
+      const { data, error } = await supabase
+        .from('students')
+        .select('*')
+        .eq('id', studentId)
+        .single()
+
+      if (error || !data) {
+        console.error('Error fetching student:', error)
+        setErrorMessage('ไม่พบข้อมูลนักเรียน หรือเกิดข้อผิดพลาด')
+        setIsLoading(false)
+      } else {
+        // เติมข้อมูลลงในฟอร์ม
+        form.setValue('first_name', data.first_name)
+        form.setValue('last_name', data.last_name)
+        form.setValue('national_id', data.national_id || '')
+        form.setValue('student_number', data.student_number || '')
+        form.setValue('address', data.address || '')
+        form.setValue('birth_date', data.birth_date ? new Date(data.birth_date).toISOString().split('T')[0] : '')
+        form.setValue('grade_level', data.grade_level || '')
+        form.setValue('behavior_score', data.behavior_score || 100)
+        setIsLoading(false)
+        setErrorMessage(null)
+      }
+    }
+
+    if (studentId) {
+      getStudentData()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [studentId])
+
+  // ฟังก์ชัน xử lý การ Submit ฟอร์ม
+  async function onSubmit(values: z.infer<typeof studentFormSchema>) {
+    setErrorMessage(null)
+
+    // เรียกใช้ Supabase เพื่อ "อัปเดต" ข้อมูล
+    const { error } = await supabase
+      .from('students')
+      .update({
+        first_name: values.first_name,
+        last_name: values.last_name,
+        national_id: values.national_id,
+        student_number: values.student_number,
+        address: values.address,
+        birth_date: values.birth_date,
+        grade_level: values.grade_level,
+        behavior_score: values.behavior_score || 100,
+      })
+      .eq('id', studentId)
+
+    if (error) {
+      console.error('Error updating student:', error)
+      setErrorMessage(error.message)
+    } else {
+      // ถ้าสำเร็จ
+      router.push('/dashboard/students')
+      router.refresh()
+    }
+  }
+
+  // แสดงผลตอนโหลด...
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-10">
+        <p>กำลังโหลดข้อมูลนักเรียน...</p>
+      </div>
+    )
+  }
+
+  // แสดงผลฟอร์ม
+  return (
+    <div className="mx-auto max-w-2xl">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">แก้ไขข้อมูลนักเรียน</CardTitle>
+          <CardDescription>
+            อัปเดตข้อมูลนักเรียนในระบบ
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="first_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>ชื่อจริง</FormLabel>
+                    <FormControl>
+                      <Input placeholder="สมชาย" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="last_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>นามสกุล</FormLabel>
+                    <FormControl>
+                      <Input placeholder="ใจดี" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="national_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>เลขบัตรประชาชน</FormLabel>
+                    <FormControl>
+                      <Input placeholder="1234567890123" maxLength={13} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="student_number"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>เลขนักเรียน</FormLabel>
+                    <FormControl>
+                      <Input placeholder="12345" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>ที่อยู่</FormLabel>
+                    <FormControl>
+                      <Input placeholder="123 ถนน..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="birth_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>วันเกิด</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="grade_level"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>ชั้นเรียน (เช่น 1/1, 2/3, 3/5)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="1/1" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="behavior_score"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>คะแนนความประพฤติ (0-100)</FormLabel>
+                    <FormControl>
+                      <Input type="number" min={0} max={100} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {errorMessage && (
+                <p className="text-sm font-medium text-red-500">
+                  {errorMessage}
+                </p>
+              )}
+
+              <div className="flex justify-end gap-4">
+                <Button variant="outline" asChild>
+                  <Link href="/dashboard/students">ยกเลิก</Link>
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting ? 'กำลังบันทึก...' : 'บันทึกการเปลี่ยนแปลง'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
