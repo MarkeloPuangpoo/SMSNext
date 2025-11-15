@@ -1,4 +1,8 @@
 // src/components/shared/Sidebar.tsx
+'use client'
+
+import { useEffect, useState } from 'react'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import LogoutButton from './LogoutButton'
 
@@ -8,6 +12,19 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ userEmail }: SidebarProps) {
+  const [userRole, setUserRole] = useState<string | null>(null)
+  const supabase = createSupabaseBrowserClient()
+
+  useEffect(() => {
+    async function getUserRole() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setUserRole(user.user_metadata?.role || null)
+      }
+    }
+    getUserRole()
+  }, [supabase])
+
   return (
     <nav className="flex h-full w-64 flex-col border-r bg-white dark:border-gray-700 dark:bg-gray-950">
       {/* ส่วนหัว Sidebar (Logo/ชื่อเว็บ) */}
@@ -39,6 +56,22 @@ export default function Sidebar({ userEmail }: SidebarProps) {
           <span>👩‍🏫</span>
           <span>Teachers</span>
         </Link>
+        <Link
+          href="/dashboard/courses"
+          className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
+        >
+          <span>📚</span>
+          <span>จัดการวิชา</span>
+        </Link>
+        {userRole === 'superadmin' && (
+          <Link
+            href="/dashboard/schedule"
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
+          >
+            <span>📅</span>
+            <span>จัดการตารางเรียน</span>
+          </Link>
+        )}
         <Link
           href="/dashboard/settings"
           className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"

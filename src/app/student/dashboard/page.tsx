@@ -101,8 +101,23 @@ export default function StudentDashboardPage() {
 
       if (enrollmentError) {
         console.error('Error loading enrollments:', enrollmentError)
-      } else {
-        setEnrollments(enrollmentData as Enrollment[])
+      } else if (enrollmentData) {
+        // แปลงข้อมูลให้ตรงกับ type Enrollment
+        const formattedEnrollments: Enrollment[] = enrollmentData.map((item: any) => ({
+          id: item.id,
+          grade: item.grade,
+          course: {
+            id: item.course?.id || '',
+            course_name: item.course?.course_name || '',
+            course_code: item.course?.course_code || null,
+            description: item.course?.description || null,
+            teacher: item.course?.teacher ? {
+              first_name: item.course.teacher.first_name,
+              last_name: item.course.teacher.last_name,
+            } : null,
+          },
+        }))
+        setEnrollments(formattedEnrollments)
       }
 
       setLoading(false)

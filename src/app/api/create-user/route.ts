@@ -26,9 +26,18 @@ export async function POST(request: Request) {
       )
     }
 
+    // ตรวจสอบ email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
+        { status: 400 }
+      )
+    }
+
     // สร้าง user account ใหม่
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-      email,
+      email: email.toLowerCase().trim(), // ทำความสะอาด email
       password,
       email_confirm: true, // ยืนยันอีเมลอัตโนมัติ
       user_metadata: userMetadata || {},

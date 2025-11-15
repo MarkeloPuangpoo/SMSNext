@@ -65,20 +65,64 @@ export default async function proxy(request: NextRequest) {
 
   // --- 3. ตรรกะสำหรับผู้ใช้ที่ "ล็อกอินแล้ว" ---
   if (session) {
-    if (pathname === '/login' || pathname === '/register') {
-      // ตรวจสอบ role และ redirect ไปที่หน้าที่ถูกต้อง
-      const userRole = session.user.user_metadata?.role
-      if (userRole === 'student') {
+    const userRole = session.user.user_metadata?.role
+
+    // --- A. Guest ---
+    if (userRole === 'guest') {
+      // ถ้าเป็น guest, ให้ไปหน้า welcome เท่านั้น
+      // และห้ามเข้าหน้าอื่น (ยกเว้น API)
+      if (pathname !== '/guest/welcome' && !pathname.startsWith('/api')) {
+        return NextResponse.redirect(new URL('/guest/welcome', request.url))
+      }
+    } 
+    
+    // --- B. Student ---
+    else if (userRole === 'student') {
+      // ถ้าเป็น student และพยายามเข้าหน้า guest/login/register/admin
+      if (pathname.startsWith('/guest') || pathname === '/login' || pathname === '/register' || pathname.startsWith('/dashboard')) {
         return NextResponse.redirect(new URL('/student/dashboard', request.url))
-      } else {
+      }
+    } 
+    
+    // --- C. Teacher ---
+    else if (userRole === 'teacher') {
+      // ถ้าเป็น teacher และพยายามเข้าหน้า guest/login/register/student/dashboard หลัก
+      if (pathname.startsWith('/guest') || pathname === '/login' || pathname === '/register' || pathname.startsWith('/student')) {
+        return NextResponse.redirect(new URL('/teacher/dashboard', request.url))
+      }
+      // จำกัดสิทธิ์ครู - ไม่ให้เข้าถึง dashboard หลัก
+      if (pathname.startsWith('/dashboard') && !pathname.startsWith('/teacher')) {
+        return NextResponse.redirect(new URL('/teacher/dashboard', request.url))
+      }
+    }
+    
+    // --- D. Admin/Superadmin ---
+    else if (userRole === 'superadmin' || !userRole) {
+      // ถ้าเป็น admin/superadmin และพยายามเข้าหน้า guest/login/register/student/teacher
+      if (pathname.startsWith('/guest') || pathname === '/login' || pathname === '/register' || pathname.startsWith('/student') || pathname.startsWith('/teacher')) {
         return NextResponse.redirect(new URL('/dashboard', request.url))
       }
+      // จำกัดสิทธิ์ admin/อื่นๆ - ไม่ให้เข้าถึง teacher dashboard
+      if (pathname.startsWith('/teacher')) {
+        return NextResponse.redirect(new URL('/dashboard', request.url))
+      }
+    }
+    
+    // --- E. กรณีอื่นๆ (เช่น User ที่เพิ่งสมัครแต่ Trigger ยังไม่ทำงาน) ---
+    else {
+       // ถ้า login แล้ว แต่ดันไม่มี role หรือพยายามเข้าหน้า login/register
+       if (pathname === '/login' || pathname === '/register') {
+          // ให้เด้งไปหน้า dashboard (เป็น default)
+          return NextResponse.redirect(new URL('/dashboard', request.url))
+       }
     }
   }
 
   // --- 4. ตรรกะสำหรับผู้ใช้ที่ "ยังไม่ล็อกอิน" ---
   if (!session) {
-    if (pathname.startsWith('/dashboard') || pathname.startsWith('/student')) {
+    // ถ้ายังไม่ login และพยายามเข้าหน้าที่ต้อง login
+    // (เพิ่ม /guest เข้าไปด้วย)
+    if (pathname.startsWith('/dashboard') || pathname.startsWith('/student') || pathname.startsWith('/teacher') || pathname.startsWith('/guest')) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
   }

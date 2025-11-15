@@ -179,23 +179,23 @@ export default function NewStudentPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl print:hidden">
-      <Card className="print:hidden">
-        <CardHeader className="print:hidden">
-          <CardTitle className="text-2xl print:hidden">เพิ่มนักเรียนใหม่</CardTitle>
-          <CardDescription className="print:hidden">
+    <div className="mx-auto max-w-2xl">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">เพิ่มนักเรียนใหม่</CardTitle>
+          <CardDescription>
             กรอกข้อมูลนักเรียนเพื่อเพิ่มเข้าสู่ระบบ
           </CardDescription>
         </CardHeader>
-        <CardContent className="print:hidden">
+        <CardContent>
           {successData ? (
             <>
-              <div className="space-y-4 print:hidden">
-                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 print:hidden">
-                  <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2 print:hidden">
+              <div className="space-y-4">
+                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                  <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
                     เพิ่มนักเรียนสำเร็จ!
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 print:hidden">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     กรุณาพิมพ์ใบเสร็จด้านล่าง
                   </p>
                 </div>

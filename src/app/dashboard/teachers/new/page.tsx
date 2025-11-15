@@ -36,6 +36,9 @@ const teacherFormSchema = z.object({
     message: 'นามสกุลต้องมีอย่างน้อย 2 ตัวอักษร',
   }),
   department: z.string().optional(),
+  grade_level: z.string().min(1, {
+    message: 'กรุณาเลือกห้องเรียน',
+  }),
 })
 
 // ฟังก์ชันสร้างรหัสผ่านอัตโนมัติ
@@ -64,6 +67,7 @@ export default function NewTeacherPage() {
       first_name: '',
       last_name: '',
       department: '',
+      grade_level: '',
     },
   })
 
@@ -83,8 +87,29 @@ export default function NewTeacherPage() {
       // สร้างรหัสผ่านอัตโนมัติ
       const password = generatePassword(10)
       
-      // สร้าง email จากชื่อ
-      const email = `teacher.${values.first_name.toLowerCase()}.${values.last_name.toLowerCase()}@bbv.ac.th`
+      // ทำความสะอาดชื่อก่อนสร้าง email (ลบช่องว่าง, อักขระพิเศษ)
+      const cleanFirstName = values.first_name
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '') // ลบช่องว่างทั้งหมด
+        .replace(/[^a-z0-9]/g, '') // ลบอักขระพิเศษทั้งหมด เหลือแค่ a-z และ 0-9
+        .substring(0, 20) // จำกัดความยาว
+      
+      const cleanLastName = values.last_name
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '') // ลบช่องว่างทั้งหมด
+        .replace(/[^a-z0-9]/g, '') // ลบอักขระพิเศษทั้งหมด เหลือแค่ a-z และ 0-9
+        .substring(0, 20) // จำกัดความยาว
+      
+      // ตรวจสอบว่ามีชื่อและนามสกุลที่ถูกต้อง
+      if (!cleanFirstName || !cleanLastName) {
+        setErrorMessage('ชื่อหรือนามสกุลไม่สามารถใช้สร้างอีเมลได้ กรุณาใช้ตัวอักษรภาษาอังกฤษหรือตัวเลขเท่านั้น')
+        return
+      }
+      
+      // สร้าง email จากชื่อที่ทำความสะอาดแล้ว
+      const email = `teacher.${cleanFirstName}.${cleanLastName}@bbv.ac.th`
 
       // 1. สร้าง user account ใหม่
       const createUserResponse = await fetch('/api/create-user', {
@@ -119,6 +144,7 @@ export default function NewTeacherPage() {
             first_name: values.first_name,
             last_name: values.last_name,
             department: values.department || null,
+            grade_level: values.grade_level,
           },
         ])
 
@@ -148,23 +174,23 @@ export default function NewTeacherPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl print:hidden">
-      <Card className="print:hidden">
-        <CardHeader className="print:hidden">
-          <CardTitle className="text-2xl print:hidden">เพิ่มครูใหม่</CardTitle>
-          <CardDescription className="print:hidden">
+    <div className="mx-auto max-w-2xl">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">เพิ่มครูใหม่</CardTitle>
+          <CardDescription>
             กรอกข้อมูลครูเพื่อเพิ่มเข้าสู่ระบบ
           </CardDescription>
         </CardHeader>
-        <CardContent className="print:hidden">
+        <CardContent>
           {successData ? (
             <>
-              <div className="space-y-4 print:hidden">
-                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 print:hidden">
-                  <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2 print:hidden">
+              <div className="space-y-4">
+                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                  <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
                     เพิ่มครูสำเร็จ!
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 print:hidden">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     กรุณาพิมพ์ใบเสร็จด้านล่าง
                   </p>
                 </div>
@@ -215,6 +241,20 @@ export default function NewTeacherPage() {
                       <FormLabel>แผนก / สาขา (ถ้ามี)</FormLabel>
                       <FormControl>
                         <Input placeholder="เช่น คณิตศาสตร์, วิทยาศาสตร์" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="grade_level"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>ห้องเรียน (เช่น 1/1, 2/3, 3/5)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="1/1" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

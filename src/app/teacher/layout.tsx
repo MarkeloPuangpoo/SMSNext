@@ -1,11 +1,9 @@
-// src/app/dashboard/layout.tsx
+// src/app/teacher/layout.tsx
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import TeacherSidebar from '@/components/shared/TeacherSidebar'
 
-// Import Sidebar component
-import Sidebar from '@/components/shared/Sidebar'
-
-export default async function DashboardLayout({
+export default async function TeacherLayout({
   children,
 }: {
   children: React.ReactNode
@@ -23,17 +21,31 @@ export default async function DashboardLayout({
     redirect('/login')
   }
 
-  // 3.5. ตรวจสอบ role - ถ้าเป็น teacher ให้ redirect ไปที่ teacher dashboard
+  // 4. ตรวจสอบ role - ถ้าไม่ใช่ teacher ให้ redirect
   const userRole = user.user_metadata?.role
-  if (userRole === 'teacher') {
-    redirect('/teacher/dashboard')
+  if (userRole !== 'teacher') {
+    redirect('/login')
   }
 
-  // 4. Struktur Layout
+  // 5. ดึงข้อมูลครู
+  const { data: teacher } = await supabase
+    .from('teachers')
+    .select('*')
+    .eq('user_id', user.id)
+    .single()
+
+  if (!teacher) {
+    redirect('/login')
+  }
+
+  // 6. Struktur Layout
   return (
     <div className="flex h-screen w-full bg-gray-100 dark:bg-gray-900">
-      {/* Sidebar */}
-      <Sidebar userEmail={user.email} />
+      {/* Teacher Sidebar */}
+      <TeacherSidebar 
+        userEmail={user.email}
+        teacherName={`${teacher.first_name} ${teacher.last_name}`}
+      />
 
       {/* Area Konten Utama */}
       <main className="flex-1 overflow-y-auto">

@@ -36,6 +36,9 @@ const teacherFormSchema = z.object({
     message: 'นามสกุลต้องมีอย่างน้อย 2 ตัวอักษร',
   }),
   department: z.string().optional(),
+  grade_level: z.string().min(1, {
+    message: 'กรุณาเลือกห้องเรียน',
+  }),
 })
 
 // Type สำหรับ Teacher
@@ -43,6 +46,7 @@ type Teacher = {
   first_name: string
   last_name: string
   department: string | null
+  grade_level: string
 }
 
 export default function EditTeacherPage() {
@@ -60,6 +64,7 @@ export default function EditTeacherPage() {
       first_name: '',
       last_name: '',
       department: '',
+      grade_level: '',
     },
   })
 
@@ -69,7 +74,7 @@ export default function EditTeacherPage() {
       setIsLoading(true)
       const { data, error } = await supabase
         .from('teachers')
-        .select('first_name, last_name, department')
+        .select('first_name, last_name, department, grade_level')
         .eq('id', teacherId)
         .single()
 
@@ -82,6 +87,7 @@ export default function EditTeacherPage() {
         form.setValue('first_name', data.first_name)
         form.setValue('last_name', data.last_name)
         form.setValue('department', data.department || '')
+        form.setValue('grade_level', data.grade_level || '')
         setIsLoading(false)
         setErrorMessage(null)
       }
@@ -104,6 +110,7 @@ export default function EditTeacherPage() {
         first_name: values.first_name,
         last_name: values.last_name,
         department: values.department || null,
+        grade_level: values.grade_level,
       })
       .eq('id', teacherId)
 
@@ -175,6 +182,20 @@ export default function EditTeacherPage() {
                     <FormLabel>แผนก / สาขา (ถ้ามี)</FormLabel>
                     <FormControl>
                       <Input placeholder="เช่น คณิตศาสตร์, วิทยาศาสตร์" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="grade_level"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>ห้องเรียน (เช่น 1/1, 2/3, 3/5)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="1/1" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
