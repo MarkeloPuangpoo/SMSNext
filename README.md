@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SchoolDB Management System
 
-## Getting Started
+ระบบบริหารจัดการโรงเรียนที่ทันสมัย ออกแบบมาเพื่อความเรียบง่าย สวยงาม และใช้งานง่ายสำหรับครู นักเรียน และผู้ดูแลระบบ
 
-First, run the development server:
+![SchoolDB Dashboard](https://placehold.co/1200x600/f8fafc/0f172a?text=SchoolDB+Dashboard)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ ฟีเจอร์หลัก (Features)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ระบบประกอบด้วยโมดูลต่างๆ ที่ครอบคลุมการทำงานในโรงเรียน:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **📊 Dashboard**: ภาพรวมสถิติที่สำคัญของโรงเรียน แสดงผลในรูปแบบที่เข้าใจง่าย
+- **🎓 จัดการนักเรียน (Students)**: ดูรายชื่อ ค้นหา และจัดการข้อมูลนักเรียน
+- **👥 จัดการครู (Teachers)**: ดูรายชื่อและจัดการข้อมูลบุคลากรครู
+- **📚 จัดการวิชา (Courses)**: บริหารจัดการรายวิชาที่เปิดสอน
+- **📅 ตารางเรียน (Schedule)**: จัดการตารางเรียนและตารางสอน
+- **⚠️ จัดการพฤติกรรม (Behavior)**: บันทึกและติดตามคะแนนความประพฤติของนักเรียน
+- **🛡️ จัดการบัญชี (Accounts)**: ระบบจัดการผู้ใช้งานและสิทธิ์การเข้าถึง (สำหรับ Admin)
+- **💬 ข้อความ (Messages)**: ระบบสื่อสารภายในระหว่างครู นักเรียน และผู้ดูแลระบบ
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🎨 การออกแบบ (Design)
 
-## Learn More
+โปรเจกต์นี้เน้นการออกแบบที่ **Minimal & Modern**:
+- **Clean UI**: หน้าจอสะอาดตา ลดความซับซ้อน เน้นเนื้อหาที่สำคัญ
+- **Typography**: ใช้ฟอนต์ **Noto Sans Thai** จาก Google Fonts เพื่อความสวยงามและอ่านง่าย
+- **Responsive**: รองรับการใช้งานบนทุกอุปกรณ์ ทั้งคอมพิวเตอร์ แท็บเล็ต และมือถือ
+- **Theme**: โทนสีขาว-เทา-ดำ (Monochrome/Zinc) ผสมผสานกับสี Accent ที่นุ่มนวล
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠️ เทคโนโลยี (Tech Stack)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Database & Auth**: [Supabase](https://supabase.com/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Language**: TypeScript
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🚀 การเริ่มต้นใช้งาน (Getting Started)
 
-## Deploy on Vercel
+1. **Clone repository**
+   ```bash
+   git clone https://github.com/yourusername/schooldb.git
+   cd schooldb
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2. **ติดตั้ง Dependencies**
+   ```bash
+   npm install
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. **ตั้งค่า Environment Variables**
+   สร้างไฟล์ `.env.local` และใส่ค่า Config ของ Supabase:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. **รันโปรเจกต์**
+   ```bash
+   npm run dev
+   ```
+   เปิด browser ไปที่ [http://localhost:3000](http://localhost:3000)
+
+## 🗺️ Roadmap
+
+แผนการพัฒนาในอนาคต:
+- [ ] **ระบบเช็คชื่อ (Attendance)**: เช็คชื่อเข้าเรียนและดูสถิติการมาเรียน
+- [ ] **ระบบตัดเกรด (Grading)**: บันทึกคะแนนและคำนวณเกรดอัตโนมัติ
+- [ ] **ปฏิทินกิจกรรม (Calendar)**: แสดงวันหยุดและกิจกรรมต่างๆ ของโรงเรียน
+
+---
+
+พัฒนาโดย [ทีมพัฒนาของคุณ]
