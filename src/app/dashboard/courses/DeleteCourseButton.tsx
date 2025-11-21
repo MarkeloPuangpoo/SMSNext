@@ -5,6 +5,18 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { Trash2, Loader2 } from 'lucide-react'
 
 interface DeleteCourseButtonProps {
   courseId: string
@@ -15,14 +27,9 @@ export default function DeleteCourseButton({ courseId, courseName }: DeleteCours
   const router = useRouter()
   const supabase = createSupabaseBrowserClient()
   const [isDeleting, setIsDeleting] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
+  const [open, setOpen] = useState(false)
 
   const handleDelete = async () => {
-    if (!showConfirm) {
-      setShowConfirm(true)
-      return
-    }
-
     setIsDeleting(true)
 
     // ตรวจสอบว่ามี enrollments ที่อ้างอิงถึง course นี้หรือไม่
@@ -36,14 +43,14 @@ export default function DeleteCourseButton({ courseId, courseName }: DeleteCours
       console.error('Error checking enrollments:', checkError)
       alert('เกิดข้อผิดพลาดในการตรวจสอบข้อมูล')
       setIsDeleting(false)
-      setShowConfirm(false)
+      setOpen(false)
       return
     }
 
     if (enrollments && enrollments.length > 0) {
       alert('ไม่สามารถลบวิชานี้ได้ เนื่องจากมีนักเรียนลงทะเบียนเรียนอยู่')
       setIsDeleting(false)
-      setShowConfirm(false)
+      setOpen(false)
       return
     }
 
@@ -57,44 +64,58 @@ export default function DeleteCourseButton({ courseId, courseName }: DeleteCours
       console.error('Error deleting course:', error)
       alert('เกิดข้อผิดพลาดในการลบวิชา: ' + error.message)
       setIsDeleting(false)
-      setShowConfirm(false)
+      setOpen(false)
     } else {
+      setOpen(false)
       router.refresh()
     }
   }
 
-  if (showConfirm) {
-    return (
-      <div className="flex gap-2">
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
         <Button
           variant="destructive"
           size="sm"
-          onClick={handleDelete}
-          disabled={isDeleting}
+          className="hover:bg-red-600 transition-all"
         >
-          {isDeleting ? 'กำลังลบ...' : 'ยืนยันลบ'}
+          <Trash2 className="w-3 h-3 mr-1 sm:mr-0" />
+          <span className="hidden sm:inline ml-1">ลบ</span>
         </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowConfirm(false)}
-          disabled={isDeleting}
-        >
-          ยกเลิก
-        </Button>
-      </div>
-    )
-  }
-
-  return (
-    <Button
-      variant="destructive"
-      size="sm"
-      onClick={handleDelete}
-      disabled={isDeleting}
-    >
-      ลบ
-    </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            <Trash2 className="w-5 h-5 text-red-600" />
+            ยืนยันการลบวิชา
+          </AlertDialogTitle>
+          <AlertDialogDescription className="pt-2">
+            คุณแน่ใจหรือไม่ว่าต้องการลบวิชา <span className="font-semibold text-gray-900">"{courseName}"</span>?
+            <br />
+            <span className="text-red-600 font-medium">การกระทำนี้ไม่สามารถยกเลิกได้</span>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isDeleting}>ยกเลิก</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {isDeleting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                กำลังลบ...
+              </>
+            ) : (
+              <>
+                <Trash2 className="w-4 h-4 mr-2" />
+                ยืนยันลบ
+              </>
+            )}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
-

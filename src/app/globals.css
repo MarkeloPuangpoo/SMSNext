@@ -3,173 +3,136 @@
 @tailwind utilities;
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  --radius: 0.5rem;
+
+  /* Minimal & Modern Color Palette (RGB Values) */
+  /* Background: Pure White */
+  --background: 255 255 255;
+  --foreground: 9 9 11;
+  /* Zinc 950 */
+
+  /* Card: White */
+  --card: 255 255 255;
+  --card-foreground: 9 9 11;
+
+  /* Popover */
+  --popover: 255 255 255;
+  --popover-foreground: 9 9 11;
+
+  /* Primary: Deep Black/Zinc */
+  --primary: 24 24 27;
+  /* Zinc 900 */
+  --primary-foreground: 250 250 250;
+
+  /* Secondary: Light Gray */
+  --secondary: 244 244 245;
+  /* Zinc 100 */
+  --secondary-foreground: 24 24 27;
+
+  /* Muted */
+  --muted: 244 244 245;
+  --muted-foreground: 113 113 122;
+  /* Zinc 500 */
+
+  /* Accent */
+  --accent: 244 244 245;
+  --accent-foreground: 24 24 27;
+
+  /* Destructive */
+  --destructive: 239 68 68;
+  --destructive-foreground: 250 250 250;
+
+  /* Border */
+  --border: 228 228 231;
+  /* Zinc 200 */
+  --input: 228 228 231;
+  --ring: 24 24 27;
+
+  /* Sidebar */
+  --sidebar: 255 255 255;
+  --sidebar-foreground: 9 9 11;
+  --sidebar-primary: 24 24 27;
+  --sidebar-primary-foreground: 250 250 250;
+  --sidebar-accent: 244 244 245;
+  --sidebar-accent-foreground: 24 24 27;
+  --sidebar-border: 228 228 231;
+  --sidebar-ring: 24 24 27;
 }
 
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  /* Dark Mode: Deep Zinc */
+  --background: 9 9 11;
+  /* Zinc 950 */
+  --foreground: 250 250 250;
+  /* Zinc 50 */
+
+  --card: 9 9 11;
+  --card-foreground: 250 250 250;
+
+  --popover: 9 9 11;
+  --popover-foreground: 250 250 250;
+
+  --primary: 250 250 250;
+  --primary-foreground: 24 24 27;
+
+  --secondary: 39 39 42;
+  /* Zinc 800 */
+  --secondary-foreground: 250 250 250;
+
+  --muted: 39 39 42;
+  --muted-foreground: 161 161 170;
+  /* Zinc 400 */
+
+  --accent: 39 39 42;
+  --accent-foreground: 250 250 250;
+
+  --destructive: 127 29 29;
+  --destructive-foreground: 250 250 250;
+
+  --border: 39 39 42;
+  --input: 39 39 42;
+  --ring: 212 212 216;
+
+  --sidebar: 9 9 11;
+  --sidebar-foreground: 250 250 250;
+  --sidebar-primary: 250 250 250;
+  --sidebar-primary-foreground: 24 24 27;
+  --sidebar-accent: 39 39 42;
+  --sidebar-accent-foreground: 250 250 250;
+  --sidebar-border: 39 39 42;
+  --sidebar-ring: 212 212 216;
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+
+  /* Minimal scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/40;
   }
 }
 
-/* Print styles - ใช้วิธีที่เรียบง่ายและแน่นอน */
-@media print {
-  @page {
-    margin: 1cm;
-  }
-  
-  html,
-  body {
-    background: white !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    width: 100% !important;
-    height: auto !important;
-  }
-  
-  /* ซ่อน sidebar */
-  nav,
-  aside,
-  [class*="sidebar"],
-  [class*="Sidebar"] {
-    display: none !important;
-  }
-  
-  /* ซ่อน main padding */
-  main {
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-  
-  main > div {
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-  
-  /* ซ่อน Card wrapper แต่ไม่ซ่อน receipt-container */
-  [class*="Card"] {
-    border: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-  }
-  
-  /* ซ่อน CardHeader, CardTitle, CardDescription */
-  [class*="CardHeader"],
-  [class*="CardTitle"],
-  [class*="CardDescription"] {
-    display: none !important;
-  }
-  
-  /* ซ่อนทุกอย่างใน CardContent ยกเว้น receipt-container */
-  [class*="CardContent"] > *:not(.receipt-container) {
-    display: none !important;
-  }
-  
-  /* แสดงเฉพาะ receipt-container */
-  .receipt-container {
-    display: block !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    position: relative !important;
-  }
-  
-  /* แสดงเนื้อหาภายใน receipt-container */
-  .receipt-container > div {
-    display: block !important;
-    background: white !important;
-    color: black !important;
-    margin: 0 auto !important;
-    padding: 1cm !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-  
-  /* แสดงทุกอย่างภายใน receipt-container */
-  .receipt-container * {
-    visibility: visible !important;
-    color: black !important;
-  }
-  
-  /* ซ่อนปุ่ม print */
-  .receipt-container button,
-  .receipt-container [class*="Button"] {
-    display: none !important;
-  }
-  
-  /* ซ่อน div ที่มี print:hidden class */
-  .receipt-container [class*="print:hidden"] {
-    display: none !important;
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
 }

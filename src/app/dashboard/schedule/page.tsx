@@ -19,7 +19,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -27,8 +26,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Calendar,
+  Clock,
+  GraduationCap,
+  BookOpen,
+  Coffee,
+  Lock,
+  Loader2
+} from 'lucide-react'
 
-// เวลาของแต่ละชั่วโมง
 const TIME_SLOTS = [
   { hour: 0, time: '08:20-08:40' },
   { hour: 1, time: '08:40-09:30' },
@@ -42,14 +49,13 @@ const TIME_SLOTS = [
 ]
 
 const DAYS = [
-  { id: 'monday', name: 'จันทร์' },
-  { id: 'tuesday', name: 'อังคาร' },
-  { id: 'wednesday', name: 'พุธ' },
-  { id: 'thursday', name: 'พฤหัสบดี' },
-  { id: 'friday', name: 'ศุกร์' },
+  { id: 'monday', name: 'จันทร์', short: 'จ' },
+  { id: 'tuesday', name: 'อังคาร', short: 'อ' },
+  { id: 'wednesday', name: 'พุธ', short: 'พ' },
+  { id: 'thursday', name: 'พฤหัสบดี', short: 'พฤ' },
+  { id: 'friday', name: 'ศุกร์', short: 'ศ' },
 ]
 
-// ช่องบังคับ (โฮมรูมทุกวัน, แนะแนววันจันทร์)
 const REQUIRED_SLOTS: Record<string, Record<number, string>> = {
   monday: { 0: 'โฮมรูม', 1: 'แนะแนว' },
   tuesday: { 0: 'โฮมรูม' },
@@ -80,15 +86,15 @@ export default function SchedulePage() {
   const [loading, setLoading] = useState(true)
   const [courses, setCourses] = useState<Array<{ id: string; course_name: string }>>([])
   const [availableGrades, setAvailableGrades] = useState<string[]>([])
+  const [statusMessage, setStatusMessage] = useState<string | null>(null)
 
-  // ดึงข้อมูล courses
   useEffect(() => {
     async function loadCourses() {
       const { data } = await supabase
         .from('courses')
         .select('id, course_name')
         .order('course_name')
-      
+
       if (data) {
         setCourses(data)
       }
@@ -96,18 +102,16 @@ export default function SchedulePage() {
     loadCourses()
   }, [supabase])
 
-  // ดึงรายชื่อชั้นเรียนที่มีอยู่
   useEffect(() => {
     async function loadGrades() {
       const { data } = await supabase
         .from('students')
         .select('grade_level')
         .order('grade_level')
-      
+
       if (data) {
         const uniqueGrades = Array.from(new Set(data.map(s => s.grade_level).filter(Boolean)))
         setAvailableGrades(uniqueGrades as string[])
-        // ตั้งค่า selectedGrade เป็นค่าแรกถ้ายังไม่มี
         if (uniqueGrades.length > 0 && !selectedGrade) {
           setSelectedGrade(uniqueGrades[0] as string)
         }
@@ -116,7 +120,6 @@ export default function SchedulePage() {
     loadGrades()
   }, [supabase, selectedGrade])
 
-  // ดึงข้อมูลตารางเรียน
   useEffect(() => {
     if (!selectedGrade) return
 
@@ -132,12 +135,11 @@ export default function SchedulePage() {
       if (error) {
         console.error('Error loading schedule:', error)
       } else {
-        // แปลงข้อมูลเป็นรูปแบบ ScheduleData
         const scheduleData: ScheduleData = {}
-        DAYS.forEach(day => {
-          scheduleData[day.id] = {}
+        DAYS.forEach(d => {
+          scheduleData[d.id] = {}
           TIME_SLOTS.forEach(slot => {
-            scheduleData[day.id][slot.hour] = null
+            scheduleData[d.id][slot.hour] = null
           })
         })
 
@@ -158,10 +160,9 @@ export default function SchedulePage() {
     loadSchedule()
   }, [selectedGrade, supabase])
 
-  // ตรวจสอบว่าช่องนี้เป็นพักเที่ยงหรือไม่
   const isLunchBreak = (hour: number, gradeLevel: string) => {
+    if (!gradeLevel) return false
     const grade = parseInt(gradeLevel.split('/')[0])
-    // ม.1-ม.3 พักเที่ยงที่ชั่วโมง 4, ม.4-ม.6 พักเที่ยงที่ชั่วโมง 5
     if (grade >= 1 && grade <= 3) {
       return hour === 4
     } else if (grade >= 4 && grade <= 6) {
@@ -170,25 +171,20 @@ export default function SchedulePage() {
     return false
   }
 
-  // ตรวจสอบว่าช่องนี้เป็นช่องบังคับหรือไม่
   const isRequiredSlot = (day: string, hour: number) => {
     return REQUIRED_SLOTS[day] && REQUIRED_SLOTS[day][hour] !== undefined
   }
 
-  // ตรวจสอบว่าช่องนี้สามารถแก้ไขได้หรือไม่
   const isEditable = (day: string, hour: number) => {
-    // ช่องบังคับไม่สามารถแก้ไขได้
     if (isRequiredSlot(day, hour)) {
       return false
     }
-    // ช่องพักเที่ยงไม่สามารถแก้ไขได้
     if (isLunchBreak(hour, selectedGrade)) {
       return false
     }
     return true
   }
 
-  // อัปเดตช่องตารางเรียน
   const updateSlot = async (day: string, hour: number, subject: string | null) => {
     if (!isEditable(day, hour)) {
       return
@@ -197,10 +193,8 @@ export default function SchedulePage() {
     const currentSlot = schedule[day]?.[hour]
     const isLunch = isLunchBreak(hour, selectedGrade)
 
-    // ถ้ามี subject ให้บันทึก/อัปเดต
     if (subject && subject.trim() !== '') {
       if (currentSlot?.id) {
-        // อัปเดต
         const { error } = await supabase
           .from('schedules')
           .update({
@@ -211,10 +205,11 @@ export default function SchedulePage() {
 
         if (error) {
           console.error('Error updating schedule:', error)
+          setStatusMessage('อัปเดตตารางเรียนล้มเหลว')
           return
         }
+        setStatusMessage('อัปเดตตารางเรียนสำเร็จ')
       } else {
-        // สร้างใหม่
         const { error } = await supabase
           .from('schedules')
           .insert({
@@ -227,11 +222,12 @@ export default function SchedulePage() {
 
         if (error) {
           console.error('Error creating schedule:', error)
+          setStatusMessage('เพิ่มตารางเรียนล้มเหลว')
           return
         }
+        setStatusMessage('เพิ่มตารางเรียนสำเร็จ')
       }
     } else {
-      // ถ้าไม่มี subject ให้ลบ
       if (currentSlot?.id) {
         const { error } = await supabase
           .from('schedules')
@@ -240,12 +236,13 @@ export default function SchedulePage() {
 
         if (error) {
           console.error('Error deleting schedule:', error)
+          setStatusMessage('ลบตารางเรียนล้มเหลว')
           return
         }
+        setStatusMessage('ลบตารางเรียนสำเร็จ')
       }
     }
 
-    // Reload schedule
     const { data } = await supabase
       .from('schedules')
       .select('*')
@@ -273,116 +270,224 @@ export default function SchedulePage() {
     }
   }
 
+  // Calculate statistics
+  const totalSlots = TIME_SLOTS.length * DAYS.length
+  const filledSlots = Object.values(schedule).reduce((acc, day) => {
+    return acc + Object.values(day).filter(slot => slot !== null && slot.subject).length
+  }, 0)
+  const requiredSlots = Object.values(REQUIRED_SLOTS).reduce((acc, day) => acc + Object.keys(day).length, 0)
+  const lunchSlots = DAYS.length
 
-  if (loading) {
+  if (loading && !selectedGrade) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>กำลังโหลดข้อมูล...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground text-lg">กำลังโหลดข้อมูล...</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold">จัดการตารางเรียน</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            จัดการตารางเรียนสำหรับแต่ละชั้นเรียน
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">จัดการตารางเรียน</h1>
+          <p className="text-muted-foreground mt-1">จัดการตารางเรียนสำหรับแต่ละชั้นเรียน</p>
         </div>
-        <Select value={selectedGrade} onValueChange={setSelectedGrade}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="เลือกชั้นเรียน" />
-          </SelectTrigger>
-          <SelectContent>
-            {availableGrades.map(grade => (
-              <SelectItem key={grade} value={grade}>
-                ม.{grade}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-3">
+          <GraduationCap className="w-5 h-5 text-muted-foreground" />
+          <Select value={selectedGrade} onValueChange={setSelectedGrade}>
+            <SelectTrigger className="w-full sm:w-56" aria-label="เลือกชั้นเรียน">
+              <SelectValue placeholder="เลือกชั้นเรียน" />
+            </SelectTrigger>
+            <SelectContent>
+              {availableGrades.map(grade => (
+                <SelectItem key={grade} value={grade}>
+                  ชั้น {grade}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>ตารางเรียนชั้น {selectedGrade}</CardTitle>
-          <CardDescription>
-            {parseInt(selectedGrade.split('/')[0]) >= 4 
-              ? 'พักเที่ยง: ชั่วโมงที่ 5 (12:00-12:50)'
-              : 'พักเที่ยง: ชั่วโมงที่ 4 (11:10-12:00)'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-24">ชั่วโมงที่</TableHead>
-                  <TableHead className="w-32">เวลา</TableHead>
-                  {DAYS.map(day => (
-                    <TableHead key={day.id} className="min-w-32">
-                      {day.name}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {TIME_SLOTS.map(slot => {
-                  const isLunch = isLunchBreak(slot.hour, selectedGrade)
-                  return (
-                    <TableRow key={slot.hour}>
-                      <TableCell className="font-medium">{slot.hour}</TableCell>
-                      <TableCell className="text-sm">{slot.time}</TableCell>
-                      {DAYS.map(day => {
-                        const currentSlot = schedule[day.id]?.[slot.hour]
-                        const isRequired = isRequiredSlot(day.id, slot.hour)
-                        const editable = isEditable(day.id, slot.hour)
-                        const requiredText = REQUIRED_SLOTS[day.id]?.[slot.hour]
+      {/* Stats Cards */}
+      {selectedGrade && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatsCard
+            title="ช่องว่างทั้งหมด"
+            value={totalSlots}
+            icon={<Calendar className="w-5 h-5" />}
+          />
+          <StatsCard
+            title="วิชาที่กำหนด"
+            value={filledSlots}
+            icon={<BookOpen className="w-5 h-5" />}
+          />
+          <StatsCard
+            title="ช่องบังคับ"
+            value={requiredSlots}
+            icon={<Lock className="w-5 h-5" />}
+          />
+          <StatsCard
+            title="พักเที่ยง"
+            value={lunchSlots}
+            icon={<Coffee className="w-5 h-5" />}
+          />
+        </div>
+      )}
 
-                        return (
-                          <TableCell key={day.id}>
-                            {isLunch ? (
-                              <div className="text-center text-gray-500 dark:text-gray-400">
-                                พักเที่ยง
-                              </div>
-                            ) : isRequired ? (
-                              <div className="font-medium text-blue-600 dark:text-blue-400">
-                                {requiredText}
-                              </div>
-                            ) : editable ? (
-                              <Select
-                                value={currentSlot?.subject || 'empty'}
-                                onValueChange={(value) => updateSlot(day.id, slot.hour, value === 'empty' ? null : value)}
-                              >
-                                <SelectTrigger className="w-full">
-                                  <SelectValue placeholder="เลือกวิชา" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="empty">-- ว่าง --</SelectItem>
-                                  {courses.map(course => (
-                                    <SelectItem key={course.id} value={course.course_name}>
-                                      {course.course_name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            ) : (
-                              <div className="text-gray-400">-</div>
-                            )}
-                          </TableCell>
-                        )
-                      })}
+      {/* Schedule Table Card */}
+      {selectedGrade && (
+        <Card>
+          <CardHeader className="border-b px-6 py-4">
+            <div className="flex items-center gap-4">
+              <div className="p-2 bg-secondary rounded-lg">
+                <Clock className="w-5 h-5" />
+              </div>
+              <div>
+                <CardTitle className="text-xl">ตารางเรียนชั้น {selectedGrade}</CardTitle>
+                <CardDescription className="mt-1 flex items-center gap-2">
+                  <GraduationCap className="w-4 h-4" />
+                  {selectedGrade && parseInt(selectedGrade.split('/')[0]) >= 4
+                    ? 'พักเที่ยง: ชั่วโมงที่ 5 (12:00-12:50)'
+                    : 'พักเที่ยง: ชั่วโมงที่ 4 (11:10-12:00)'}
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin mr-3" />
+                <p className="text-muted-foreground">กำลังโหลดตารางเรียน...</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50 hover:bg-muted/50">
+                      <TableHead className="w-16 md:w-20 font-semibold text-center">ชั่วโมง</TableHead>
+                      <TableHead className="w-28 md:w-36 font-semibold">เวลา</TableHead>
+                      {DAYS.map(day => (
+                        <TableHead key={day.id} className="min-w-32 md:min-w-40 font-semibold text-center">
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="text-sm md:text-base">{day.name}</span>
+                            <span className="text-xs text-muted-foreground hidden md:inline">({day.short})</span>
+                          </div>
+                        </TableHead>
+                      ))}
                     </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                  </TableHeader>
+                  <TableBody>
+                    {TIME_SLOTS.map(slot => {
+                      const isLunch = isLunchBreak(slot.hour, selectedGrade)
+                      return (
+                        <TableRow
+                          key={slot.hour}
+                          className="hover:bg-muted/50 transition-colors"
+                        >
+                          <TableCell className="font-bold text-center">
+                            {slot.hour}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground whitespace-nowrap text-sm">
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-3 h-3" />
+                              {slot.time}
+                            </div>
+                          </TableCell>
+                          {DAYS.map(day => {
+                            const currentSlot = schedule[day.id]?.[slot.hour]
+                            const isRequired = isRequiredSlot(day.id, slot.hour)
+                            const editable = isEditable(day.id, slot.hour)
+                            const requiredText = REQUIRED_SLOTS[day.id]?.[slot.hour]
+
+                            return (
+                              <TableCell key={day.id} className="p-2">
+                                {isLunch ? (
+                                  <div className="flex items-center justify-center p-2 rounded-lg bg-orange-50 border border-orange-100">
+                                    <div className="flex items-center gap-2 text-orange-700 font-medium text-xs md:text-sm">
+                                      <Coffee className="w-3 h-3 md:w-4 md:h-4" />
+                                      <span className="hidden sm:inline">พักเที่ยง</span>
+                                      <span className="sm:hidden">พัก</span>
+                                    </div>
+                                  </div>
+                                ) : isRequired ? (
+                                  <div className="flex items-center justify-center p-2 rounded-lg bg-emerald-50 border border-emerald-100">
+                                    <div className="flex items-center gap-2 text-emerald-700 font-semibold text-xs md:text-sm">
+                                      <Lock className="w-3 h-3 md:w-4 md:h-4" />
+                                      <span>{requiredText}</span>
+                                    </div>
+                                  </div>
+                                ) : editable ? (
+                                  <Select
+                                    value={currentSlot?.subject || 'empty'}
+                                    onValueChange={(value) => updateSlot(day.id, slot.hour, value === 'empty' ? null : value)}
+                                  >
+                                    <SelectTrigger className="w-full text-xs md:text-sm" aria-label={`เลือกวิชา วัน ${day.name} ชั่วโมง ${slot.hour}`}>
+                                      <SelectValue placeholder="เลือกวิชา" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="empty">-- ว่าง --</SelectItem>
+                                      {courses.map(course => (
+                                        <SelectItem key={course.id} value={course.course_name}>
+                                          {course.course_name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                ) : (
+                                  <div className="text-muted-foreground/30 text-xs md:text-sm text-center">-</div>
+                                )}
+                              </TableCell>
+                            )
+                          })}
+                        </TableRow>
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {!selectedGrade && availableGrades.length === 0 && (
+        <Card className="border-2 border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <div className="relative mb-6">
+              <Calendar className="w-20 h-20 text-muted-foreground/20 relative z-10" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">ยังไม่มีชั้นเรียน</h3>
+            <p className="text-muted-foreground text-center max-w-md">
+              กรุณาเพิ่มนักเรียนก่อนเพื่อสร้างชั้นเรียน
+            </p>
+          </CardContent>
+        </Card>
+      )}
+      <div aria-live="polite" role="status" className="sr-only">{statusMessage || ''}</div>
     </div>
   )
 }
 
+function StatsCard({ title, value, icon }: { title: string, value: number, icon: React.ReactNode }) {
+  return (
+    <Card>
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between space-y-0 pb-2">
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <div className="text-muted-foreground bg-secondary p-2 rounded-md">
+            {icon}
+          </div>
+        </div>
+        <div className="pt-2">
+          <div className="text-2xl font-bold">{value}</div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}

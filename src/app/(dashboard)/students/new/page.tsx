@@ -26,6 +26,20 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import Link from 'next/link'
+import { 
+  UserPlus, 
+  ArrowLeft, 
+  CheckCircle2, 
+  User,
+  CreditCard,
+  Hash,
+  MapPin,
+  Calendar,
+  GraduationCap,
+  Award,
+  Mail,
+  Key
+} from 'lucide-react'
 
 // Schema สำหรับ Validate ข้อมูลนักเรียนใหม่
 const studentFormSchema = z.object({
@@ -84,7 +98,7 @@ export default function NewStudentPage() {
       address: '',
       birth_date: '',
       grade_level: '',
-      behavior_score: 100,
+      behavior_score: 0,
     },
   })
 
@@ -145,7 +159,7 @@ export default function NewStudentPage() {
             address: values.address,
             birth_date: values.birth_date,
             grade_level: values.grade_level, // เก็บเป็น TEXT เช่น "1/1"
-            behavior_score: values.behavior_score || 100,
+            behavior_score: values.behavior_score || 0,
           },
         ])
 
@@ -174,174 +188,283 @@ export default function NewStudentPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">เพิ่มนักเรียนใหม่</CardTitle>
-          <CardDescription>
-            กรอกข้อมูลนักเรียนเพื่อเพิ่มเข้าสู่ระบบ
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {successData ? (
-            <div className="space-y-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-              <h3 className="text-lg font-semibold text-green-800 dark:text-green-200">
-                เพิ่มนักเรียนสำเร็จ!
-              </h3>
-              <div className="space-y-2">
-                <p className="text-sm font-medium">ข้อมูลสำหรับเข้าสู่ระบบ:</p>
-                <div className="bg-white dark:bg-gray-800 p-3 rounded border">
-                  <p className="text-sm">
-                    <span className="font-medium">Email:</span> {successData.email}
-                  </p>
-                  <p className="text-sm mt-2">
-                    <span className="font-medium">รหัสผ่าน:</span>{' '}
-                    <span className="font-mono text-lg">{successData.password}</span>
-                  </p>
-                </div>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  กรุณาบันทึกข้อมูลนี้ไว้ให้กับนักเรียน
-                </p>
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50 p-4 md:p-6">
+      <div className="max-w-3xl mx-auto">
+        {/* Header */}
+        <div className="mb-6">
+          <Button variant="ghost" asChild className="mb-4 hover:bg-indigo-50">
+            <Link href="/dashboard/students" className="flex items-center gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              กลับไปหน้ารายชื่อ
+            </Link>
+          </Button>
+          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
+            เพิ่มนักเรียนใหม่
+          </h1>
+          <p className="text-gray-600 mt-2">กรอกข้อมูลนักเรียนเพื่อเพิ่มเข้าสู่ระบบ</p>
+        </div>
+
+        <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50 border-b">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-lg text-white">
+                <UserPlus className="w-6 h-6" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl">ข้อมูลนักเรียน</CardTitle>
+                <CardDescription>กรอกข้อมูลให้ครบถ้วนเพื่อสร้างบัญชีใหม่</CardDescription>
               </div>
             </div>
-          ) : (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="first_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>ชื่อจริง</FormLabel>
-                      <FormControl>
-                        <Input placeholder="สมชาย" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="last_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>นามสกุล</FormLabel>
-                      <FormControl>
-                        <Input placeholder="ใจดี" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="national_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>เลขบัตรประชาชน</FormLabel>
-                      <FormControl>
-                        <Input placeholder="1234567890123" maxLength={13} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="student_number"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>เลขนักเรียน</FormLabel>
-                      <FormControl>
-                        <Input placeholder="12345" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>ที่อยู่</FormLabel>
-                      <FormControl>
-                        <Input placeholder="123 ถนน..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="birth_date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>วันเกิด</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="grade_level"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>ชั้นเรียน (เช่น 1/1, 2/3, 3/5)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="1/1" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="behavior_score"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>คะแนนความประพฤติ (0-100)</FormLabel>
-                      <FormControl>
-                        <Input type="number" min={0} max={100} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {errorMessage && (
-                  <p className="text-sm font-medium text-red-500">
-                    {errorMessage}
-                  </p>
-                )}
-
-                <div className="flex justify-end gap-4">
-                  <Button variant="outline" asChild>
-                    <Link href="/dashboard/students">ยกเลิก</Link>
-                  </Button>
-                  
-                  <Button
-                    type="submit"
-                    disabled={form.formState.isSubmitting}
-                  >
-                    {form.formState.isSubmitting ? 'กำลังบันทึก...' : 'บันทึก'}
+          </CardHeader>
+          <CardContent className="p-6">
+            {successData ? (
+              <div className="space-y-6">
+                <div className="flex items-center justify-center mb-6">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-green-400 rounded-full blur-2xl opacity-30 animate-pulse"></div>
+                    <CheckCircle2 className="w-20 h-20 text-green-500 relative z-10" />
+                  </div>
+                </div>
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-2">เพิ่มนักเรียนสำเร็จ!</h3>
+                  <p className="text-gray-600">ข้อมูลสำหรับเข้าสู่ระบบ:</p>
+                </div>
+                <div className="space-y-4">
+                  <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-200">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Mail className="w-5 h-5 text-green-600" />
+                      <span className="font-semibold text-gray-700">อีเมล:</span>
+                    </div>
+                    <p className="text-lg font-mono bg-white p-3 rounded border border-green-200 text-gray-800">
+                      {successData.email}
+                    </p>
+                  </div>
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Key className="w-5 h-5 text-blue-600" />
+                      <span className="font-semibold text-gray-700">รหัสผ่าน:</span>
+                    </div>
+                    <p className="text-2xl font-mono bg-white p-4 rounded border border-blue-200 text-center font-bold text-gray-800 tracking-wider">
+                      {successData.password}
+                    </p>
+                  </div>
+                  <div className="p-4 bg-amber-50 rounded-lg border-2 border-amber-200">
+                    <p className="text-sm text-amber-800 flex items-center gap-2">
+                      <span className="text-lg">⚠️</span>
+                      <span>กรุณาบันทึกข้อมูลนี้ไว้ให้กับนักเรียน ระบบจะนำคุณกลับไปหน้ารายชื่อในอีก 5 วินาที</span>
+                    </p>
+                  </div>
+                </div>
+                <div className="flex justify-center pt-4">
+                  <Button asChild className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700">
+                    <Link href="/dashboard/students">กลับไปหน้ารายชื่อ</Link>
                   </Button>
                 </div>
-              </form>
-            </Form>
-          )}
-        </CardContent>
-      </Card>
+              </div>
+            ) : (
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="first_name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2 text-gray-700">
+                            <User className="w-4 h-4 text-indigo-600" />
+                            ชื่อจริง
+                          </FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="สมชาย" 
+                              {...field}
+                              className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="last_name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2 text-gray-700">
+                            <User className="w-4 h-4 text-indigo-600" />
+                            นามสกุล
+                          </FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="ใจดี" 
+                              {...field}
+                              className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="national_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2 text-gray-700">
+                          <CreditCard className="w-4 h-4 text-indigo-600" />
+                          เลขบัตรประชาชน
+                        </FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="1234567890123" 
+                            maxLength={13} 
+                            {...field}
+                            className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="student_number"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2 text-gray-700">
+                          <Hash className="w-4 h-4 text-indigo-600" />
+                          เลขนักเรียน
+                        </FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="12345" 
+                            {...field}
+                            className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2 text-gray-700">
+                          <MapPin className="w-4 h-4 text-indigo-600" />
+                          ที่อยู่
+                        </FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="123 ถนน..." 
+                            {...field}
+                            className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="birth_date"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2 text-gray-700">
+                            <Calendar className="w-4 h-4 text-indigo-600" />
+                            วันเกิด
+                          </FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="date" 
+                              {...field}
+                              className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="grade_level"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2 text-gray-700">
+                            <GraduationCap className="w-4 h-4 text-indigo-600" />
+                            ชั้นเรียน
+                          </FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="1/1" 
+                              {...field}
+                              className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="behavior_score"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2 text-gray-700">
+                          <Award className="w-4 h-4 text-indigo-600" />
+                          คะแนนความประพฤติ (0-100)
+                        </FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            min={0} 
+                            max={100} 
+                            {...field}
+                            className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {errorMessage && (
+                    <div className="p-4 bg-red-50 border-2 border-red-200 rounded-lg">
+                      <p className="text-sm font-medium text-red-800">
+                        ⚠️ {errorMessage}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4 border-t">
+                    <Button variant="outline" asChild className="hover:bg-gray-50">
+                      <Link href="/dashboard/students">ยกเลิก</Link>
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={form.formState.isSubmitting}
+                      className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white shadow-lg"
+                    >
+                      {form.formState.isSubmitting ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

@@ -1,16 +1,12 @@
 // src/app/(auth)/register/page.tsx
-'use client' // 👈 ต้องเป็น Client Component
+'use client'
 
-import { useRouter } from 'next/navigation'
+//
 import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
-
-// Import Supabase client (ฝั่ง Browser)
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
-
-// Import Shadcn UI Components
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -28,9 +24,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { Mail, Lock, UserPlus, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 
-// 1. สร้าง Schema สำหรับ Validate ข้อมูลด้วย Zod
-// (เพิ่มช่อง "ยืนยันรหัสผ่าน")
 const formSchema = z
   .object({
     email: z.string().email({
@@ -42,18 +38,15 @@ const formSchema = z
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    // กฎพิเศษสำหรับเช็คว่ารหัสผ่านตรงกัน
     message: 'รหัสผ่านทั้งสองช่องไม่ตรงกัน',
-    path: ['confirmPassword'], // ระบุว่า error นี้จะแสดงที่ช่อง confirmPassword
+    path: ['confirmPassword'],
   })
 
 export default function RegisterPage() {
-  const router = useRouter()
   const supabase = createSupabaseBrowserClient()
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
-  // 2. ตั้งค่า React Hook Form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,129 +56,185 @@ export default function RegisterPage() {
     },
   })
 
-  // 3. ฟังก์ชัน xử lý (handle) การ Submit ฟอร์ม
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setErrorMessage(null)
     setSuccessMessage(null)
 
-    // 4. เรียกใช้ Supabase auth เพื่อ "สมัครสมาชิก"
-    // (หมายเหตุ: นี่คือการตั้งค่าเริ่มต้นที่ต้อง "ยืนยันอีเมล")
     const { error } = await supabase.auth.signUp({
       email: values.email,
       password: values.password,
     })
 
     if (error) {
-      // ถ้าสมัครไม่ผ่าน (เช่น อีเมลนี้ถูกใช้แล้ว)
       setErrorMessage(error.message)
     } else {
-      // 5. ถ้าสมัครผ่าน
       setSuccessMessage(
         'การลงทะเบียนสำเร็จ! กรุณาตรวจสอบอีเมลของคุณเพื่อยืนยันบัญชี'
       )
-      form.reset() // เคลียร์ฟอร์ม
-      // (ปกติ เราจะไม่ส่งไปหน้า dashboard ทันที แต่จะรอให้เขายืนยันอีเมลก่อน)
-      // router.push('/dashboard')
+      form.reset()
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-950">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">สร้างบัญชีใหม่</CardTitle>
-          <CardDescription>
-            กรอกข้อมูลเพื่อสมัครสมาชิก
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* ช่อง Email */}
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>อีเมล</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="you@school.com"
-                        {...field}
-                        type="email"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-blue-50 to-cyan-50 p-4 relative overflow-hidden">
+      <div className="relative z-10 w-full max-w-md">
+        <Card className="border-0 shadow-2xl bg-white/90 backdrop-blur-xl">
+          <CardHeader className="space-y-4 pb-6 text-center">
+            <div className="flex justify-center mb-2">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-2xl blur-xl opacity-50"></div>
+                <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-600 flex items-center justify-center shadow-xl">
+                  <UserPlus className="w-10 h-10 text-white" />
+                </div>
+              </div>
+            </div>
+            <div>
+              <CardTitle className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
+                สมัครสมาชิก
+              </CardTitle>
+              <CardDescription className="text-base md:text-lg">
+                โรงเรียนบางปะกง &#34;บวรวิทยายน&#34;
+              </CardDescription>
+            </div>
+          </CardHeader>
+
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700 font-medium flex items-center gap-2">
+                        <Mail className="w-4 h-4 text-indigo-600" />
+                        อีเมล
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            placeholder="you@bbv.ac.th"
+                            {...field}
+                            type="email"
+                            className="h-12 pl-11 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 transition-all duration-200"
+                            aria-label="อีเมล"
+                          />
+                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700 font-medium flex items-center gap-2">
+                        <Lock className="w-4 h-4 text-indigo-600" />
+                        รหัสผ่าน
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            placeholder="••••••••"
+                            {...field}
+                            type="password"
+                            className="h-12 pl-11 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 transition-all duration-200"
+                            aria-label="รหัสผ่าน"
+                          />
+                          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700 font-medium">
+                        ยืนยันรหัสผ่าน
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="••••••••"
+                          {...field}
+                          type="password"
+                          className="h-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 transition-all duration-200"
+                          aria-label="ยืนยันรหัสผ่าน"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {errorMessage && (
+                  <div className="rounded-xl bg-red-50 border-2 border-red-200 p-4">
+                    <p className="text-sm font-medium text-red-700">
+                      {errorMessage}
+                    </p>
+                  </div>
                 )}
-              />
 
-              {/* ช่อง Password */}
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>รหัสผ่าน</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="••••••••"
-                        {...field}
-                        type="password"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                {successMessage && (
+                  <div className="rounded-xl bg-green-50 border-2 border-green-200 p-4">
+                    <p className="text-sm font-medium text-green-700">
+                      {successMessage}
+                    </p>
+                  </div>
                 )}
-              />
 
-              {/* ช่อง Confirm Password */}
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>ยืนยันรหัสผ่าน</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="••••••••"
-                        {...field}
-                        type="password"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <Button
+                  type="submit"
+                  className="w-full h-12 text-base font-semibold bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 hover:from-indigo-700 hover:via-blue-700 hover:to-cyan-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      กำลังสร้างบัญชี...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <UserPlus className="w-5 h-5" />
+                      สมัครสมาชิก
+                      <ArrowRight className="w-4 h-4" />
+                    </span>
+                  )}
+                </Button>
 
-              {/* แสดง Error Message (ถ้ามี) */}
-              {errorMessage && (
-                <p className="text-sm font-medium text-red-500">
-                  {errorMessage}
-                </p>
-              )}
+                <div className="text-center pt-4">
+                  <p className="text-sm text-gray-600">
+                    มีบัญชีอยู่แล้ว?{' '}
+                    <Link
+                      href="/login"
+                      className="font-semibold text-indigo-600 hover:text-indigo-700 transition-colors underline-offset-4 hover:underline"
+                    >
+                      เข้าสู่ระบบ
+                    </Link>
+                  </p>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
 
-              {/* แสดง Success Message (ถ้ามี) */}
-              {successMessage && (
-                <p className="text-sm font-medium text-green-500">
-                  {successMessage}
-                </p>
-              )}
-
-              {/* ปุ่ม Submit */}
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting
-                  ? 'กำลังสร้างบัญชี...'
-                  : 'ลงทะเบียน'}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+        <div className="mt-6 text-center">
+          <p className="text-xs text-gray-500">
+            © 2024 โรงเรียนบางปะกง &#34;บวรวิทยายน&#34;
+          </p>
+        </div>
+      </div>
     </div>
   )
 }

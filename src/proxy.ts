@@ -58,14 +58,14 @@ export default async function proxy(request: NextRequest) {
     }
   )
 
-  // 2. ตรวจสอบ Session (และรีเฟรช token)
-  const { data: { session } } = await supabase.auth.getSession()
+  // 2. ตรวจสอบ User (ใช้ getUser() แทน getSession() เพื่อความปลอดภัย)
+  const { data: { user } } = await supabase.auth.getUser()
 
   const { pathname } = request.nextUrl
 
   // --- 3. ตรรกะสำหรับผู้ใช้ที่ "ล็อกอินแล้ว" ---
-  if (session) {
-    const userRole = session.user.user_metadata?.role
+  if (user) {
+    const userRole = user.user_metadata?.role
 
     // --- A. Guest ---
     if (userRole === 'guest') {
@@ -119,7 +119,7 @@ export default async function proxy(request: NextRequest) {
   }
 
   // --- 4. ตรรกะสำหรับผู้ใช้ที่ "ยังไม่ล็อกอิน" ---
-  if (!session) {
+  if (!user) {
     // ถ้ายังไม่ login และพยายามเข้าหน้าที่ต้อง login
     // (เพิ่ม /guest เข้าไปด้วย)
     if (pathname.startsWith('/dashboard') || pathname.startsWith('/student') || pathname.startsWith('/teacher') || pathname.startsWith('/guest')) {

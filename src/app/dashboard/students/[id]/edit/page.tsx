@@ -86,7 +86,7 @@ export default function EditStudentPage() {
       address: '',
       birth_date: '',
       grade_level: '',
-      behavior_score: 100,
+      behavior_score: 0,
     },
   })
 
@@ -113,7 +113,7 @@ export default function EditStudentPage() {
         form.setValue('address', data.address || '')
         form.setValue('birth_date', data.birth_date ? new Date(data.birth_date).toISOString().split('T')[0] : '')
         form.setValue('grade_level', data.grade_level || '')
-        form.setValue('behavior_score', data.behavior_score || 100)
+        form.setValue('behavior_score', data.behavior_score || 0)
         setIsLoading(false)
         setErrorMessage(null)
       }
@@ -140,7 +140,7 @@ export default function EditStudentPage() {
         address: values.address,
         birth_date: values.birth_date,
         grade_level: values.grade_level,
-        behavior_score: values.behavior_score || 100,
+        behavior_score: values.behavior_score || 0,
       })
       .eq('id', studentId)
 

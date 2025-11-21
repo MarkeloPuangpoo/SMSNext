@@ -13,7 +13,7 @@ export default function GuestWelcomePage() {
         {/* <Image src="/logo.png" alt="Logo" width={120} height={120} /> */}
         
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-4">
-          ยินดีต้อนรับสู่โรงเรียนบางปะกง"บวรวิทยายน"
+          ยินดีต้อนรับสู่โรงเรียนบางปะกง &#34;บวรวิทยายน&#34;
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
           บัญชีของคุณกำลังรอการตรวจสอบและอนุมัติจากผู้ดูแลระบบ

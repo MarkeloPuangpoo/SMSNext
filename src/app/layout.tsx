@@ -1,15 +1,17 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Noto_Sans_Thai } from 'next/font/google'
 import './globals.css'
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
+const notoSansThai = Noto_Sans_Thai({
+  subsets: ['thai', 'latin'],
+  variable: '--font-noto-sans-thai',
+  weight: ['300', '400', '500', '600', '700'],
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
-  title: 'SchoolDB Dashboard',
-  description: 'ระบบฐานข้อมูลโรงเรียน',
+  title: 'SchoolDB - Modern School Management',
+  description: 'ระบบบริหารจัดการโรงเรียนยุคใหม่ เรียบง่าย ทันสมัย',
 }
 
 export default function RootLayout({
@@ -18,10 +20,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    // 4. ลบ className ทั้งหมดออกจาก <html>
-    <html lang="en">
-      {/* 5. ใช้ className ของ Inter ที่ <body> ที่เดียว */}
-      <body className={`${inter.variable} font-sans antialiased`}>
+    <html lang="th">
+      <body className={`${notoSansThai.variable} font-sans antialiased bg-background text-foreground`}>
         {children}
       </body>
     </html>

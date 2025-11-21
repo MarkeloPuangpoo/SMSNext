@@ -32,7 +32,7 @@ export default function Receipt({ email, password, name, role, studentNumber }: 
             />
           </div>
           <h1 className="text-xl font-bold mb-2">
-            โรงเรียนบางปะกง "บวรวิทยายน"
+            โรงเรียนบางปะกง &#34;บวรวิทยายน&#34;
           </h1>
           <p className="text-sm mb-1">
             Bangpakong "Bowonwittayayon" School

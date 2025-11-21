@@ -1,35 +1,21 @@
 // src/app/dashboard/courses/page.tsx
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
-import DeleteCourseButton from "./DeleteCourseButton"
+import {
+  BookOpen,
+  Plus,
+  Library,
+  Hash,
+  FileText,
+  Users
+} from 'lucide-react'
+import CoursesTableClient from './CoursesTableClient'
 
-// กำหนด Type ของ course
-type Course = {
-  id: string
-  course_name: string
-  course_code: string | null
-  description: string | null
-  teacher: {
-    id: string
-    first_name: string
-    last_name: string
-  } | null
-}
-
-// นี่คือ Server Component, เราดึงข้อมูลได้โดยตรง
 export default async function CoursesPage() {
   const supabase = await createSupabaseServerClient()
 
-  // ดึงข้อมูล courses พร้อม teacher
   const { data: courses, error } = await supabase
     .from('courses')
     .select(`
@@ -49,68 +35,79 @@ export default async function CoursesPage() {
     console.error('Error fetching courses:', error)
   }
 
+  // Calculate statistics
+  const totalCourses = courses?.length || 0
+  const coursesWithCode = courses?.filter(c => c.course_code).length || 0
+  const coursesWithDescription = courses?.filter(c => c.description).length || 0
+  const uniqueTeachers = new Set(courses?.map(c => c.teacher?.id).filter(Boolean) || []).size
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">จัดการวิชา</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            จัดการรายการวิชาทั้งหมดในระบบ
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">จัดการวิชา</h1>
+          <p className="text-muted-foreground mt-1">ระบบจัดการรายการวิชาทั้งหมด {totalCourses} วิชา</p>
         </div>
         <Button asChild>
-          <Link href="/dashboard/courses/new">เพิ่มวิชาใหม่</Link>
+          <Link href="/dashboard/courses/new" className="flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            เพิ่มวิชาใหม่
+          </Link>
         </Button>
       </div>
 
-      <div className="rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>ชื่อวิชา</TableHead>
-              <TableHead>รหัสวิชา</TableHead>
-              <TableHead>ครูผู้สอน</TableHead>
-              <TableHead>คำอธิบาย</TableHead>
-              <TableHead className="text-right">จัดการ</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {!courses || courses.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center text-gray-500 py-8">
-                  ยังไม่มีข้อมูลวิชา
-                </TableCell>
-              </TableRow>
-            ) : (
-              courses.map((course: Course) => (
-                <TableRow key={course.id}>
-                  <TableCell className="font-medium">{course.course_name}</TableCell>
-                  <TableCell>{course.course_code || '-'}</TableCell>
-                  <TableCell>
-                    {course.teacher 
-                      ? `${course.teacher.first_name} ${course.teacher.last_name}`
-                      : '-'
-                    }
-                  </TableCell>
-                  <TableCell className="max-w-xs truncate">
-                    {course.description || '-'}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/dashboard/courses/${course.id}/edit`}>
-                          แก้ไข
-                        </Link>
-                      </Button>
-                      <DeleteCourseButton courseId={course.id} courseName={course.course_name} />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatsCard
+          title="วิชาทั้งหมด"
+          value={totalCourses}
+          icon={<BookOpen className="w-5 h-5" />}
+        />
+        <StatsCard
+          title="มีรหัสวิชา"
+          value={coursesWithCode}
+          icon={<Hash className="w-5 h-5" />}
+        />
+        <StatsCard
+          title="มีคำอธิบาย"
+          value={coursesWithDescription}
+          icon={<FileText className="w-5 h-5" />}
+        />
+        <StatsCard
+          title="ครูผู้สอน"
+          value={uniqueTeachers}
+          icon={<Users className="w-5 h-5" />}
+        />
       </div>
+
+      <Card>
+        <CardHeader className="border-b px-6 py-4">
+          <CardTitle className="text-xl flex items-center gap-2">
+            <Library className="w-5 h-5" />
+            รายชื่อวิชา
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <CoursesTableClient courses={courses || []} />
+        </CardContent>
+      </Card>
     </div>
+  )
+}
+
+function StatsCard({ title, value, icon }: { title: string, value: number, icon: React.ReactNode }) {
+  return (
+    <Card>
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between space-y-0 pb-2">
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <div className="text-muted-foreground bg-secondary p-2 rounded-md">
+            {icon}
+          </div>
+        </div>
+        <div className="pt-2">
+          <div className="text-2xl font-bold">{value}</div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

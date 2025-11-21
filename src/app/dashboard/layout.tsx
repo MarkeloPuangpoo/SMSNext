@@ -1,8 +1,6 @@
 // src/app/dashboard/layout.tsx
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-
-// Import Sidebar component
 import Sidebar from '@/components/shared/Sidebar'
 
 export default async function DashboardLayout({
@@ -10,38 +8,34 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  // 1. สร้าง Server Client
   const supabase = await createSupabaseServerClient()
 
-  // 2. ดึงข้อมูล User ที่กำลัง login
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // 3. ถ้าไม่มี user, redirect ไปหน้า login
   if (!user) {
     redirect('/login')
   }
 
-  // 3.5. ตรวจสอบ role - ถ้าเป็น teacher ให้ redirect ไปที่ teacher dashboard
   const userRole = user.user_metadata?.role
   if (userRole === 'teacher') {
     redirect('/teacher/dashboard')
   }
 
-  // 4. Struktur Layout
   return (
-    <div className="flex h-screen w-full bg-gray-100 dark:bg-gray-900">
-      {/* Sidebar */}
-      <Sidebar userEmail={user.email} />
+    <div className="flex h-screen w-full bg-background">
+      {/* Sidebar - Hidden on mobile, visible on desktop */}
+      <aside className="hidden lg:flex h-full">
+        <Sidebar userEmail={user.email} />
+      </aside>
 
-      {/* Area Konten Utama */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-4 md:p-8">
+      {/* Main Content Area */}
+      <main className="flex-1 overflow-y-auto w-full lg:w-auto bg-secondary/20">
+        <div className="min-h-full">
           {children}
         </div>
       </main>
     </div>
   )
 }
-

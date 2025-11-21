@@ -87,7 +87,7 @@ export default function NewStudentPage() {
       address: '',
       birth_date: '',
       grade_level: '',
-      behavior_score: 100,
+      behavior_score: 0,
     },
   })
 
@@ -148,7 +148,7 @@ export default function NewStudentPage() {
             address: values.address,
             birth_date: values.birth_date,
             grade_level: values.grade_level, // เก็บเป็น TEXT เช่น "1/1"
-            behavior_score: values.behavior_score || 100,
+            behavior_score: values.behavior_score || 0,
           },
         ])
 
