@@ -34,17 +34,17 @@ export default async function TeacherLayout({
   }
 
   return (
-    <div className="flex h-screen w-full bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
+    <div className="flex h-screen w-full bg-background">
       {/* Teacher Sidebar - Hidden on mobile, visible on desktop */}
-      <aside className="hidden lg:flex">
-        <TeacherSidebar 
+      <aside className="hidden lg:flex h-full">
+        <TeacherSidebar
           userEmail={user.email}
           teacherName={`${teacher.first_name} ${teacher.last_name}`}
         />
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto w-full lg:w-auto">
+      <main className="flex-1 overflow-y-auto w-full lg:w-auto bg-secondary/20">
         <div className="min-h-full">
           {children}
         </div>

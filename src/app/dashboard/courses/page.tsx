@@ -39,7 +39,15 @@ export default async function CoursesPage() {
   const totalCourses = courses?.length || 0
   const coursesWithCode = courses?.filter(c => c.course_code).length || 0
   const coursesWithDescription = courses?.filter(c => c.description).length || 0
-  const uniqueTeachers = new Set(courses?.map(c => c.teacher?.id).filter(Boolean) || []).size
+  const uniqueTeachers = new Set(courses?.map(c => {
+    const teacher = Array.isArray(c.teacher) ? c.teacher[0] : c.teacher
+    return teacher?.id
+  }).filter(Boolean) || []).size
+
+  const formattedCourses = courses?.map(c => ({
+    ...c,
+    teacher: Array.isArray(c.teacher) ? c.teacher[0] : c.teacher
+  })) || []
 
   return (
     <div className="p-6 space-y-6">
@@ -87,7 +95,7 @@ export default async function CoursesPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <CoursesTableClient courses={courses || []} />
+          <CoursesTableClient courses={formattedCourses} />
         </CardContent>
       </Card>
     </div>

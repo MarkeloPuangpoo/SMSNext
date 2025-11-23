@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     // วิธีที่ทำงานได้แน่นอน: Update user metadata เพื่อบังคับให้ต้อง login ใหม่
     // การ update metadata จะทำให้ Supabase invalidate session ทั้งหมด
     const sessionRevokedAt = new Date().toISOString()
-    
+
     const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
       user.id,
       {
@@ -66,10 +66,11 @@ export async function POST(request: Request) {
       message: 'Signed out from all devices successfully',
       session_revoked_at: sessionRevokedAt,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in signout-all-sessions API:', error)
+    const message = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Internal server error: ' + (error?.message || 'Unknown error') },
+      { error: 'Internal server error: ' + message },
       { status: 500 }
     )
   }

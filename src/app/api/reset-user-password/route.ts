@@ -50,10 +50,11 @@ export async function POST(request: Request) {
       success: true,
       message: 'Password reset successfully'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in reset-user-password API:', error)
+    const message = error instanceof Error ? error.message : 'Internal server error'
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: message },
       { status: 500 }
     )
   }

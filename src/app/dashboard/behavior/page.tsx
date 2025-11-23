@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import {
-  AlertTriangle,
   Search,
   Plus,
   Award,
@@ -152,6 +151,7 @@ export default async function BehaviorPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   behaviorLogs.map((log: any) => {
                     const student = log.student as BehaviorLog['student']
                     return (
@@ -211,12 +211,12 @@ export default async function BehaviorPage() {
                           <Link href={`/dashboard/behavior/${student.id}`}>
                             <div className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer">
                               <Award className={`w-4 h-4 ${(student.behavior_score || 0) === 0 ? 'text-muted-foreground' :
-                                  (student.behavior_score || 0) < 10 ? 'text-emerald-500' :
-                                    (student.behavior_score || 0) < 20 ? 'text-amber-500' : 'text-red-500'
+                                (student.behavior_score || 0) < 10 ? 'text-emerald-500' :
+                                  (student.behavior_score || 0) < 20 ? 'text-amber-500' : 'text-red-500'
                                 }`} />
                               <span className={`font-semibold ${(student.behavior_score || 0) === 0 ? 'text-muted-foreground' :
-                                  (student.behavior_score || 0) < 10 ? 'text-emerald-600' :
-                                    (student.behavior_score || 0) < 20 ? 'text-amber-600' : 'text-red-600'
+                                (student.behavior_score || 0) < 10 ? 'text-emerald-600' :
+                                  (student.behavior_score || 0) < 20 ? 'text-amber-600' : 'text-red-600'
                                 }`}>
                                 {student.behavior_score || 0}
                               </span>

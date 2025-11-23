@@ -177,9 +177,10 @@ export default function AccountsPage() {
       setMessage({ type: 'success', text: 'เปลี่ยนรหัสผ่านสำเร็จ!' })
       setNewPassword('')
       setSelectedAccount(null)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error resetting password:', error)
-      setMessage({ type: 'error', text: error.message || 'เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน' })
+      const message = error instanceof Error ? error.message : 'เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน'
+      setMessage({ type: 'error', text: message })
     } finally {
       setResettingPassword(null)
     }
@@ -263,8 +264,8 @@ export default function AccountsPage() {
         <CardContent className="p-0">
           {message && (
             <div className={`m-6 p-4 rounded-lg flex items-start gap-3 ${message.type === 'error'
-                ? 'bg-destructive/10 text-destructive'
-                : 'bg-emerald-50 text-emerald-600'
+              ? 'bg-destructive/10 text-destructive'
+              : 'bg-emerald-50 text-emerald-600'
               }`}>
               {message.type === 'error' ? (
                 <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
@@ -317,8 +318,8 @@ export default function AccountsPage() {
                         </TableCell>
                         <TableCell>
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${account.role === 'student'
-                              ? 'bg-indigo-50 text-indigo-700'
-                              : 'bg-purple-50 text-purple-700'
+                            ? 'bg-indigo-50 text-indigo-700'
+                            : 'bg-purple-50 text-purple-700'
                             }`}>
                             {account.role === 'student' ? (
                               <>

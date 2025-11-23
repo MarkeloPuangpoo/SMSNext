@@ -26,9 +26,9 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import Link from 'next/link'
-import { 
-  User, 
-  ArrowLeft, 
+import {
+  User,
+  ArrowLeft,
   Edit,
   CreditCard,
   Hash,
@@ -106,14 +106,14 @@ export default function EditStudentPage() {
   useEffect(() => {
     async function getStudentData() {
       setIsLoading(true)
-      const { data, error } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('students')
         .select('*')
         .eq('id', studentId)
         .single()
 
-      if (error || !data) {
-        console.error('Error fetching student:', error)
+      if (fetchError || !data) {
+        console.error('Error fetching student:', fetchError)
         setErrorMessage('ไม่พบข้อมูลนักเรียน หรือเกิดข้อผิดพลาด')
         setIsLoading(false)
       } else {
@@ -142,7 +142,7 @@ export default function EditStudentPage() {
     setErrorMessage(null)
 
     // เรียกใช้ Supabase เพื่อ "อัปเดต" ข้อมูล
-    const { error } = await supabase
+    const { error: updateError } = await supabase
       .from('students')
       .update({
         first_name: values.first_name,
@@ -156,9 +156,9 @@ export default function EditStudentPage() {
       })
       .eq('id', studentId)
 
-    if (error) {
-      console.error('Error updating student:', error)
-      setErrorMessage(error.message)
+    if (updateError) {
+      console.error('Error updating student:', updateError)
+      setErrorMessage(updateError.message)
     } else {
       // ถ้าสำเร็จ
       router.push('/dashboard/students')
@@ -222,8 +222,8 @@ export default function EditStudentPage() {
                           ชื่อจริง
                         </FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="สมชาย" 
+                          <Input
+                            placeholder="สมชาย"
                             {...field}
                             className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                           />
@@ -243,8 +243,8 @@ export default function EditStudentPage() {
                           นามสกุล
                         </FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="ใจดี" 
+                          <Input
+                            placeholder="ใจดี"
                             {...field}
                             className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                           />
@@ -265,9 +265,9 @@ export default function EditStudentPage() {
                         เลขบัตรประชาชน
                       </FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="1234567890123" 
-                          maxLength={13} 
+                        <Input
+                          placeholder="1234567890123"
+                          maxLength={13}
                           {...field}
                           className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                         />
@@ -287,8 +287,8 @@ export default function EditStudentPage() {
                         เลขนักเรียน
                       </FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="12345" 
+                        <Input
+                          placeholder="12345"
                           {...field}
                           className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                         />
@@ -308,8 +308,8 @@ export default function EditStudentPage() {
                         ที่อยู่
                       </FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="123 ถนน..." 
+                        <Input
+                          placeholder="123 ถนน..."
                           {...field}
                           className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                         />
@@ -330,8 +330,8 @@ export default function EditStudentPage() {
                           วันเกิด
                         </FormLabel>
                         <FormControl>
-                          <Input 
-                            type="date" 
+                          <Input
+                            type="date"
                             {...field}
                             className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                           />
@@ -351,8 +351,8 @@ export default function EditStudentPage() {
                           ชั้นเรียน
                         </FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="1/1" 
+                          <Input
+                            placeholder="1/1"
                             {...field}
                             className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                           />
@@ -373,10 +373,10 @@ export default function EditStudentPage() {
                         คะแนนความประพฤติ (0-100)
                       </FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
-                          min={0} 
-                          max={100} 
+                        <Input
+                          type="number"
+                          min={0}
+                          max={100}
                           {...field}
                           className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                         />

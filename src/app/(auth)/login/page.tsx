@@ -116,7 +116,7 @@ export default function LoginPage() {
                 โรงเรียนบางปะกง &#34;บวรวิทยายน&#34;
               </CardDescription>
               <p className="text-sm text-gray-500 mt-1">
-                Bangpakong "Bowonwittayayon" School
+                Bangpakong &quot;Bowonwittayayon&quot; School
               </p>
             </div>
           </CardHeader>

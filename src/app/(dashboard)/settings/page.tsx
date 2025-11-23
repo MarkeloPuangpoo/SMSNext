@@ -33,8 +33,7 @@ import {
   Mail,
   AlertCircle,
   CheckCircle,
-  Sparkles,
-  Lock
+  Sparkles
 } from 'lucide-react'
 import {
   AlertDialog,
@@ -239,8 +238,8 @@ export default function SettingsPage() {
 
                 {message && (
                   <div className={`p-3 rounded-lg flex items-start gap-3 ${message.type === 'error'
-                      ? 'bg-destructive/10 text-destructive'
-                      : 'bg-emerald-50 text-emerald-600'
+                    ? 'bg-destructive/10 text-destructive'
+                    : 'bg-emerald-50 text-emerald-600'
                     }`} role="alert">
                     {message.type === 'error' ? (
                       <AlertCircle className="w-5 h-5 flex-shrink-0" />
