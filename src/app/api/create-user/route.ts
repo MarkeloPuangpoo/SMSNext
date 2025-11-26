@@ -2,9 +2,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
-// ใช้ Service Role Key เพื่อสร้าง user ได้ (ต้องเก็บใน environment variable)
-// Supabase client will be initialized inside the handler
-
 export async function POST(request: Request) {
   try {
     const body = await request.json()
@@ -29,10 +26,11 @@ export async function POST(request: Request) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
+    // Add explicit check before creating client
     if (!supabaseUrl || !supabaseServiceKey) {
       console.error('Missing Supabase environment variables')
       return NextResponse.json(
-        { error: 'Server configuration error' },
+        { error: 'Server configuration error: Missing environment variables' },
         { status: 500 }
       )
     }
