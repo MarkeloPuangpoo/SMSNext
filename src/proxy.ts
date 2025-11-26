@@ -12,8 +12,8 @@ export default async function proxy(request: NextRequest) {
 
   // 1. สร้าง Supabase client สำหรับ Middleware
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
     {
       cookies: {
         // (ฟังก์ชัน get/set/remove สำหรับ Middleware)
@@ -74,16 +74,16 @@ export default async function proxy(request: NextRequest) {
       if (pathname !== '/guest/welcome' && !pathname.startsWith('/api')) {
         return NextResponse.redirect(new URL('/guest/welcome', request.url))
       }
-    } 
-    
+    }
+
     // --- B. Student ---
     else if (userRole === 'student') {
       // ถ้าเป็น student และพยายามเข้าหน้า guest/login/register/admin
       if (pathname.startsWith('/guest') || pathname === '/login' || pathname === '/register' || pathname.startsWith('/dashboard')) {
         return NextResponse.redirect(new URL('/student/dashboard', request.url))
       }
-    } 
-    
+    }
+
     // --- C. Teacher ---
     else if (userRole === 'teacher') {
       // ถ้าเป็น teacher และพยายามเข้าหน้า guest/login/register/student/dashboard หลัก
@@ -95,7 +95,7 @@ export default async function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL('/teacher/dashboard', request.url))
       }
     }
-    
+
     // --- D. Admin/Superadmin ---
     else if (userRole === 'superadmin' || !userRole) {
       // ถ้าเป็น admin/superadmin และพยายามเข้าหน้า guest/login/register/student/teacher
@@ -107,14 +107,14 @@ export default async function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL('/dashboard', request.url))
       }
     }
-    
+
     // --- E. กรณีอื่นๆ (เช่น User ที่เพิ่งสมัครแต่ Trigger ยังไม่ทำงาน) ---
     else {
-       // ถ้า login แล้ว แต่ดันไม่มี role หรือพยายามเข้าหน้า login/register
-       if (pathname === '/login' || pathname === '/register') {
-          // ให้เด้งไปหน้า dashboard (เป็น default)
-          return NextResponse.redirect(new URL('/dashboard', request.url))
-       }
+      // ถ้า login แล้ว แต่ดันไม่มี role หรือพยายามเข้าหน้า login/register
+      if (pathname === '/login' || pathname === '/register') {
+        // ให้เด้งไปหน้า dashboard (เป็น default)
+        return NextResponse.redirect(new URL('/dashboard', request.url))
+      }
     }
   }
 

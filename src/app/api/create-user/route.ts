@@ -3,16 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 // ใช้ Service Role Key เพื่อสร้าง user ได้ (ต้องเก็บใน environment variable)
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!, // 👈 Service Role Key (ไม่ใช่ anon key)
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  }
-)
+// Supabase client will be initialized inside the handler
 
 export async function POST(request: Request) {
   try {
@@ -34,6 +25,24 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing Supabase environment variables')
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      )
+    }
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    })
 
     // สร้าง user account ใหม่
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({

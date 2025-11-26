@@ -4,16 +4,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 // ใช้ Service Role Key เพื่อลบ session ทั้งหมด
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  }
-)
+// Supabase client will be initialized inside the handler
 
 export async function POST(request: Request) {
   try {
@@ -36,6 +27,24 @@ export async function POST(request: Request) {
         { status: 403 }
       )
     }
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing Supabase environment variables')
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      )
+    }
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    })
 
     // วิธีที่ทำงานได้แน่นอน: Update user metadata เพื่อบังคับให้ต้อง login ใหม่
     // การ update metadata จะทำให้ Supabase invalidate session ทั้งหมด
