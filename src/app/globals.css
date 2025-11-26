@@ -136,3 +136,35 @@
     text-wrap: balance;
   }
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .receipt-container,
+  .receipt-container *,
+  .bulk-print-container,
+  .bulk-print-container * {
+    visibility: visible;
+  }
+
+  .receipt-container,
+  .bulk-print-container {
+    visibility: visible !important;
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    /* Add some padding for the print */
+    background-color: white;
+  }
+
+  /* Hide the print button specifically if not already hidden */
+  .print\:hidden {
+    display: none !important;
+  }
+}
